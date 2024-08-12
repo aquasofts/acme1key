@@ -36,69 +36,83 @@ elif cat /proc/version | grep -q -E -i "centos|red hat|redhat"; then
     release="Centos"
 fi	   
 
-function acme(){
-    if [ $release = "Centos" ]; then
-        yum -y update && yum install curl -y && yum install -y socat 
+#安装acme.sh
+    [[ ! $SYSTEM == "CentOS" ]] && ${PACKAGE_UPDATE[int]}
+    [[ -z $(type -P curl) ]] && ${PACKAGE_INSTALL[int]} curl
+    [[ -z $(type -P wget) ]] && ${PACKAGE_INSTALL[int]} wget
+    [[ -z $(type -P socat) ]] && ${PACKAGE_INSTALL[int]} socat
+    [[ -z $(type -P cron) && $SYSTEM =~ Debian|Ubuntu ]] && ${PACKAGE_INSTALL[int]} cron && systemctl start cron && systemctl enable cron
+    [[ -z $(type -P crond) && $SYSTEM == CentOS ]] && ${PACKAGE_INSTALL[int]} cronie && systemctl start crond && systemctl enable crond
+    read -rp "请输入注册邮箱（例：admin@gmail.com，或留空自动生成）：" acmeEmail
+    [[ -z $acmeEmail ]] && autoEmail=$(date +%s%N | md5sum | cut -c 1-32) && acmeEmail=$autoEmail@gmail.com
+    curl https://get.acme.sh | sh -s email=$acmeEmail
+    source ~/.bashrc
+    bash ~/.acme.sh/acme.sh --upgrade --auto-upgrade
+    bash ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+    if [[ -n $(~/.acme.sh/acme.sh -v 2>/dev/null) ]]; then
+        green "Acme.sh证书申请脚本安装成功！"
     else
-        apt update -y && apt install curl -y && apt install -y socat
+        red "抱歉，Acme.sh证书申请脚本安装失败"
+        green "建议如下："
+        yellow "1. 检查VPS的网络环境"
+        yellow "2. 脚本可能跟不上时代，建议截图发布到GitHub Issues或TG群询问"
     fi
-    curl https://get.acme.sh | sh
-    read -p "请输入注册邮箱：" email
-    bash /root/.acme.sh/acme.sh --register-account -m ${email}
-    read -p "输入需要申请SSL证书的域名域名:" domain
-    domainIP=$(curl ipget.net/?ip="$domain")
-    yellow "VPS本机IP：$IP"
-    yellow "当前的域名解析到的IP：$domainIP"
-    if [ $IP = $domainIP ]; then
-        if echo $domainIP | grep -q ":"; then
-            bash /root/.acme.sh/acme.sh  --issue -d ${domain} --standalone -k ec-256 --server letsencrypt --listen-v6
-        else
-            bash /root/.acme.sh/acme.sh  --issue -d ${domain} --standalone -k ec-256 --server letsencrypt
-        fi
-        bash /root/.acme.sh/acme.sh --installcert -d ${domain} --key-file /root/private.key --fullchain-file /root/cert.crt --ecc
-        green "域名证书（cert.crt）和私钥（private.key）已保存到 /root 文件夹，请注意保存"
+    back2menu
+
+    #get the domain here,and we need verify it
+    local domain=""
+    read -p "请输入你的域名:" domain
+    LOGD "你输入的域名为:${domain},正在进行域名合法性校验..."
+    #here we need to judge whether there exists cert already
+    local currentCert=$(~/.acme.sh/acme.sh --list | grep ${domain} | wc -l)
+    if [ ${currentCert} -ne 0 ]; then
+        local certInfo=$(~/.acme.sh/acme.sh --list)
+        LOGE "域名合法性校验失败,当前环境已有对应域名证书,不可重复申请,当前证书详情:"
+        LOGI "$certInfo"
+        exit 1
     else
-        red "域名解析IP不匹配"
-        green "请确认DNS已正确解析到VPS，或CloudFlare的小云朵没关闭，请关闭小云朵后重试"
-        exit 0
+        LOGI "域名合法性校验通过..."
     fi
-}
+    #get needed port here
+    local WebPort=80
+    read -p "请输入你所希望使用的端口,如回车将使用默认80端口(此端口需要未被占用):" WebPort
+    if [[ ${WebPort} -gt 65535 || ${WebPort} -lt 1 ]]; then
+        LOGE "你所选择的端口${WebPort}为无效值,将使用默认80端口进行申请"
+    fi
+    LOGI "将会使用${WebPort}进行证书申请,请确保端口处于开放状态..."
+    #NOTE:This should be handled by user
+    #open the port and kill the occupied progress
+    ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+    ~/.acme.sh/acme.sh --issue -d ${domain} --standalone --httpport ${WebPort}
+    if [ $? -ne 0 ]; then
+        LOGE "证书申请失败,原因请参见报错信息"
+        rm -rf ~/.acme.sh/${domain}
+        exit 1
+    else
+        LOGI "证书申请成功,开始安装证书..."
+    fi
+    #install cert
+    ~/.acme.sh/acme.sh --installcert -d ${domain} --ca-file /root/cert/ca.cer \
+        --cert-file /root/cert/${domain}.cer --key-file /root/cert/${domain}.key \
+        --fullchain-file /root/cert/fullchain.cer
 
-function renew(){
-    read -p "你的域名:" domain
-    bash /root/.acme.sh/acme.sh --renew -d ${domain} --force --ecc
-}
+    if [ $? -ne 0 ]; then
+        LOGE "证书安装失败,脚本退出"
+        rm -rf ~/.acme.sh/${domain}
+        exit 1
+    else
+        LOGI "证书安装成功,开启自动更新..."
+    fi
+    ~/.acme.sh/acme.sh --upgrade --auto-upgrade
+    if [ $? -ne 0 ]; then
+        LOGE "自动更新设置失败,脚本退出"
+        ls -lah cert
+        chmod 755 $certPath
+        exit 1
+    else
+        LOGI "证书已安装且已开启自动更新,具体信息如下"
+        ls -lah cert
+        chmod 755 $certPath
+    fi
 
-function update(){
-    wget -N https://cdn.jsdelivr.net/gh/Misaka-blog/acme1key@master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
-}
 
-function start_menu(){
-    clear
-    red "=================================="
-    echo "                           "
-    red "    Acme.sh 域名证书一键申请脚本     "
-    red "          by 小御坂的破站           "
-    echo "                           "
-    red "  Site: https://blog.misaka.rest  "
-    echo "                           "
-    red "=================================="
-    echo "                           "
-    echo "                           "
-    echo "1. 申请证书"
-    echo "2. 续期证书"
-    echo "v. 更新脚本"
-    echo "0. 退出脚本"
-    echo "                           "
-    echo "                           "
-    read -p "请输入数字:" menuNumberInput
-    case "$menuNumberInput" in     
-        1 ) acme ;;
-        2 ) renew ;;
-        v ) update ;;
-        0 ) exit 0
-    ;;       
-    esac
-}   
-
-start_menu
