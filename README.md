@@ -6,6 +6,8 @@
 
 感谢 [x-ui](https://github.com/FranzKafkaYu/x-ui/) 项目中的acme相关代码
 
+如果此脚本对您有帮助，不妨点一个star支持一下，让更多人受到帮助
+
 ## 使用方法
 
 ```shell
