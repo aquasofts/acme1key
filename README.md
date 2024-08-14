@@ -1,7 +1,9 @@
 # Acme.sh 域名证书一键申请脚本
 
-此脚本可以帮助你使用acme.sh脚本申请域名的ssl证书，对比原脚本基本完全重构
+此脚本可以帮助你使用acme.sh脚本申请域名的ssl证书，本页fork版对比原脚本基本完全重构
+
 使用端口方式申请脚本
+
 感谢 [x-ui](https://github.com/FranzKafkaYu/x-ui/) 项目中的acme相关代码
 
 ## 使用方法
