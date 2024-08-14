@@ -13,3 +13,9 @@
 ```shell
 wget -N https://raw.githubusercontent.com/aquasofts/acme1key/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
 ```
+
+若您的机器位于中国内地，可使用以下脚本
+
+```shell
+wget -N https://raw.gitcode.com/aquasofts/acme1key/raw/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
+```
