@@ -21,3 +21,5 @@ wget -N https://raw.githubusercontent.com/aquasofts/acme1key/master/acme1key.sh 
 ```shell
 wget -N https://raw.gitcode.com/aquasofts/acme1key/raw/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
 ```
+
+English: https://github.com/aquasofts/acme1key/blob/master/README_EN.md
