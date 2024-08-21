@@ -23,3 +23,13 @@ wget -N https://raw.githubusercontent.com/aquasofts/acme1key/master/acme1key.sh 
 ```shell
 wget -N https://raw.gitcode.com/aquasofts/acme1key/raw/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
 ```
+
+实验性：
+
+```shell
+wget -N https://raw.gitcode.com/aquasofts/acme1key/raw/master/test/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
+```
+
+实验性脚本说明：
+
+由 ChatGPT 4o 为我的垃圾代码进行优化，但未经测试，优化内容请参考 [ChatGPT 4o](https://github.com/aquasofts/acme1key/blob/master/test/GPT.md)
