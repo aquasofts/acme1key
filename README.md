@@ -1,5 +1,7 @@
 # Acme.sh 域名证书一键申请脚本
 
+[简体中文](https://github.com/aquasofts/acme1key/blob/master/README.md) | [English](https://github.com/aquasofts/acme1key/blob/master/README_EN.md)
+
 此脚本可以帮助你使用acme.sh脚本申请域名的ssl证书
 
 本页fork版对比原脚本基本完全重构
@@ -21,5 +23,3 @@ wget -N https://raw.githubusercontent.com/aquasofts/acme1key/master/acme1key.sh 
 ```shell
 wget -N https://raw.gitcode.com/aquasofts/acme1key/raw/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
 ```
-
-English: https://github.com/aquasofts/acme1key/blob/master/README_EN.md
