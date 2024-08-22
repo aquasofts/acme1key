@@ -21,5 +21,11 @@ wget -N https://raw.githubusercontent.com/aquasofts/acme1key/master/acme1key.sh 
 If your machine is located in mainland China, you can use the following script:
 
 ```shell
-wget -N https://raw.gitcode.com/aquasofts/acme1key/raw/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
+wget -N https://gitee.com/mosior/acme1key/raw/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
+```
+
+test：
+
+```shell
+wget -N https://gitee.com/mosior/acme1key/raw/master/test/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
 ```
