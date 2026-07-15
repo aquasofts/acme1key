@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# 历史实验版本，仅供参考，请勿用于新部署。
+
 # 清除环境并修复损坏的依赖项
 apt --fix-broken install
 

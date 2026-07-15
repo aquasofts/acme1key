@@ -1,31 +1,25 @@
-### Acme.sh One-Click Domain Certificate Application Script
+# Acme.sh One-Click Domain Certificate Application Script
 
 [简体中文](https://github.com/aquasofts/acme1key/blob/master/README.md) | [English](https://github.com/aquasofts/acme1key/blob/master/README_EN.md)
 
-This script helps you apply for an SSL certificate for your domain using the acme.sh script.
+This script uses [acme.sh](https://github.com/acmesh-official/acme.sh) standalone mode to issue SSL certificates.
 
-This forked version has been almost completely restructured compared to the original script.
+Rewritten from the original script, it supports apt/dnf/yum, multiple SAN domains, RSA/ECC keys, custom output directories, and renewal reload commands.
 
-### Script for applying using port method
-
-Special thanks to the [x-ui](https://github.com/FranzKafkaYu/x-ui/) project for the acme-related code.
-
-If this script is helpful to you, consider giving it a star to support and help more people.
+Special thanks to the [x-ui](https://github.com/FranzKafkaYu/x-ui/) project for its acme-related code. If this script helps you, consider giving it a star.
 
 ## Usage
 
-```shell
-wget -N https://raw.githubusercontent.com/aquasofts/acme1key/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
-```
-
-If your machine is located in mainland China, you can use the following script:
+Interactive mode:
 
 ```shell
-wget -N https://gitee.com/aquasoft/acme1key/raw/master/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
+wget -O acme1key.sh https://raw.githubusercontent.com/aquasofts/acme1key/master/acme1key.sh && chmod +x acme1key.sh && sudo ./acme1key.sh
 ```
 
-test：
+Or pass options directly (repeat `-d` for SAN domains):
 
 ```shell
-wget -N https://gitee.com/aquasoft/acme1key/raw/master/test/acme1key.sh && chmod -R 777 acme1key.sh && bash acme1key.sh
+sudo ./acme1key.sh -d example.com -d www.example.com -e admin@example.com --reloadcmd "systemctl reload nginx"
 ```
+
+Certificates are saved to `/root/cert/primary-domain/` by default. Public port 80 must be reachable and the local listening port must be free; a custom port only works when public port 80 is forwarded to it. Run `./acme1key.sh --help` for all options. Previous versions are kept in [`old`](https://github.com/aquasofts/acme1key/tree/master/old).
